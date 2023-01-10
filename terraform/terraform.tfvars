@@ -1,5 +1,5 @@
 # instance variables values
-ami_id        = "ami-06bb3ee01d992f30d"
+ami_id        = "ami-0d4360d9166cfc9cb"
 instance_type = "t2.micro"
 key_name      = "us-west-key"
 

@@ -1,0 +1,49 @@
+- name: IaC
+  hosts: all
+  become: true
+
+  tasks:
+  - name: Update ubuntu packages
+    ansible.builtin.apt:
+      update_cache: true
+      force_apt_get: true
+      cache_valid_time: 3600
+
+  - name: Install packages
+    ansible.builtin.apt:
+      name:
+        - vim
+        - wget
+
+  - name: Import the Elasticsearch PGP Key
+    ansible.builtin.shell: |
+      wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+    args:
+      warn: false
+
+  - name: Add repository defiition
+    ansible.builtin.copy:
+      dest: /etc/apt/sources.list.d/elastic-7.x.list
+      content: |
+        deb https://artifacts.elastic.co/packages/7.x/apt stable main
+      mode: '0666'
+
+  - name: Install the Elasticsearch package
+    ansible.builtin.apt:
+      name: elasticsearch
+      state: present
+      update_cache: true
+    notify:
+      - Start Elasticsearch
+      - Enable Elasticsearch
+
+  handlers:
+    - name: Start Elasticsearch
+      ansible.builtin.systemd:
+        name: elasticsearch
+        state: started
+
+    - name: Enable Elasticsearch
+      ansible.builtin.systemd:
+        name: elasticsearch
+        enabled: true
